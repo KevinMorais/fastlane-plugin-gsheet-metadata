@@ -12,7 +12,7 @@ fastlane add_plugin gsheet_metadata
 
 ## About gsheet_metadata
 
-Generate metadata from a Google Spreadhseet
+Generate metadata from Google Spreadsheet
 
 **Note to author:** Add a more detailed description about this plugin here. If your plugin contains multiple actions, make sure to mention them here.
 

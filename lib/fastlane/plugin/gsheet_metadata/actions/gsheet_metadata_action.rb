@@ -5,12 +5,12 @@ module Fastlane
   module Actions
     class GsheetMetadataAction < Action
       def self.run(params)
-        Helper::GsheetMetadataHelper.run
-        #UI.message("The gsheet_metadata plugin is working!")
+        Helper::GsheetMetadataHelper.metadata
+        UI.message("The gsheet_metadata plugin is working!")
       end
 
       def self.description
-        "Generate metadata from a Google Spreadhseet"
+        "Generate metadata from Google Spreadsheet"
       end
 
       def self.authors
@@ -23,7 +23,7 @@ module Fastlane
 
       def self.details
         # Optional:
-        "This plugin will generate all required metadata from a Google Spreadsheet. . Every sheet represent a language"
+        "Use a Google Spreadsheet and the plugin will generate txt files for every languages"
       end
 
       def self.available_options
@@ -37,7 +37,11 @@ module Fastlane
       end
 
       def self.is_supported?(platform)
-        [:ios].include?(platform)
+        # Adjust this if your plugin only works for a particular platform (iOS vs. Android, for example)
+        # See: https://docs.fastlane.tools/advanced/#control-configuration-by-lane-and-by-platform
+        #
+        # [:ios, :mac, :android].include?(platform)
+        true
       end
     end
   end

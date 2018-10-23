@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.author        = 'Kevin Morais'
   spec.email         = 'kevin.morais@free'
 
-  spec.summary       = 'Generate metadata from a Google Spreadsheet'
-  spec.homepage      = "https://github.com/KevinMorais/fastlane-plugin-gsheet-metadata"
+  spec.summary       = 'Generate metadata from Google Spreadsheet'
+  # spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-gsheet_metadata"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   # Don't add a dependency to fastlane or fastlane_re
   # since this would cause a circular dependency
 
-  spec.add_dependency 'GSheetMetadata', '~> 0.1.0'
+  spec.add_dependency "google_drive", '>= 1.0.0'
 
   spec.add_development_dependency('pry')
   spec.add_development_dependency('bundler')
