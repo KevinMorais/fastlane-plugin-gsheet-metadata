@@ -2,34 +2,49 @@ require 'fastlane_core/ui/ui'
 require "google_drive"
 
 module Fastlane
+  
   UI = FastlaneCore::UI unless Fastlane.const_defined?("UI")
+
+   # Get output directory
+  OUTPUT_DIRECTORY = (File.directory?("fastlane") ? "fastlane/metadata" : "metadata")
 
   module Helper
     class GsheetMetadataHelper
       # class methods that you define here become available in your action
       # as `Helper::GsheetMetadataHelper.your_method`
       #
-      def self.show_message
-        UI.message("Hello from the gsheet_metadata plugin helper!")
+
+      ## This method will ask the name of a spreadsheet and save it
+      def self.writeSpreadsheetName(session)
+        
+        # Ask for name
+        input = UI.input("Please write the name of your spreadsheet:")
+
+        # Check if spreadsheet exist
+        if !session.spreadsheet_by_title(input)
+            UI.error "Spreadsheet not found ! Please retry"
+            writeSpreadsheetName(session)
+        end
+
+        File.open(OUTPUT_DIRECTORY + "/spreadsheet.txt", "w") { |file|
+            file.write(input)
+        }
       end
+
+      ## This method will generate all required metadata
       def self.metadata
         
         UI.message "Let's start to generate file for every languages...."
 
-        # Get output directory
-        output_directory = (File.directory?("fastlane") ? "fastlane/metadata" : "metadata")
-
 	      # Check first if we have credential to authenticate to Google Drive
-        credentials = Dir.glob(output_directory + "*.json").first
-        
-        UI.message "ouput directory: " + output_directory
+        credentials = Dir.glob(OUTPUT_DIRECTORY + "/credentials.json").first
 
         # If no, we ask the path
         if !credentials
           
           input = UI.input("Please provide the entire path of your credential JSON:")
 
-          File.open(output_directory + "/credentials.json", "w") { |file|
+          File.open(OUTPUT_DIRECTORY + "/credentials.json", "w") { |file|
               file.write(File.read(input))
           }
           credentials = input
@@ -40,29 +55,23 @@ module Fastlane
         session = GoogleDrive::Session.from_service_account_key(credentials)
 
         # Check if there's a spreadsheet name save
-        if !File.file?(output_directory + "/spreadsheet.txt")
+        if !File.file?(OUTPUT_DIRECTORY + "/spreadsheet.txt")
+            writeSpreadsheetName(session)
+        else
+          reuse = UI.select("Would you like to use the file '#{File.read(OUTPUT_DIRECTORY + "/spreadsheet.txt")}'?", ["yes (y)", "no (n)"])
 
-            # Ask for name
-            input = UI.input("Please write the name of your spreadsheet:")
-
-            # Check if spreadsheet exist
-            if !session.spreadsheet_by_title(input)
-                UI.error "Spreadsheet not found ! Please retry"
-                exit
-            end
-
-            File.open(output_directory + "/spreadsheet.txt", "w") { |file|
-                file.write(input)
-            }
+          if reuse == "n" || reuse == "no" || reuse == "no (n)"
+              writeSpreadsheetName(session)
+          end
 
         end
 
         # Get spreadsheet by its title
-        spreadsheet = session.spreadsheet_by_title(File.read(output_directory + "/spreadsheet.txt"))
+        spreadsheet = session.spreadsheet_by_title(File.read(OUTPUT_DIRECTORY + "/spreadsheet.txt"))
 
         # Check if spreadsheet exist
         if !spreadsheet
-            FileUtils.rm_f(output_directory + "/spreadsheet.txt")
+            FileUtils.rm_f(OUTPUT_DIRECTORY + "/spreadsheet.txt")
             UI.error "Spreadsheet not found, please retry"
             exit
         end
@@ -73,10 +82,10 @@ module Fastlane
             UI.message "Create directory with name " + sheet.title
             
             # Remove directory if exist
-            FileUtils.remove_dir(output_directory + "/" + sheet.title, true)
+            FileUtils.remove_dir(OUTPUT_DIRECTORY + "/" + sheet.title, true)
             
             # Create directory for current sheet
-            Dir.mkdir(output_directory + "/" + sheet.title)
+            Dir.mkdir(OUTPUT_DIRECTORY + "/" + sheet.title)
             
             # Enumerate through each title
             sheet.rows[0].each_with_index { |title, index|
@@ -86,7 +95,7 @@ module Fastlane
                     
                     if idx == index
                         
-                        path = output_directory + "/" + sheet.title + "/" + title + ".txt"
+                        path = OUTPUT_DIRECTORY + "/" + sheet.title + "/" + title + ".txt"
                         
                         # Create a txt file with the title as name
                         File.open(path, "w") { |file|
@@ -97,8 +106,7 @@ module Fastlane
                 }
             }
         }
-
-        UI.success "You can now retrieve all of your files in root of this directory"
+        UI.success "Successfully updated your metadata !"
       end
     end
   end
