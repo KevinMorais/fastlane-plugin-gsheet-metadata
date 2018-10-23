@@ -11,8 +11,9 @@ Gem::Specification.new do |spec|
   spec.email         = 'kevin.morais@free'
 
   spec.summary       = 'Generate metadata from Google Spreadsheet'
-  # spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-gsheet_metadata"
+  spec.homepage      = "https://github.com/KevinMorais/fastlane-plugin-gsheet-metadata"
   spec.license       = "MIT"
+  spec.metadata    = { "source_code_uri" => "https://github.com/KevinMorais/fastlane-plugin-gsheet-metadata" }
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
